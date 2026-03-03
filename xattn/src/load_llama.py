@@ -76,7 +76,7 @@ def repeat_kv(hidden_states: torch.Tensor, n_rep: int) -> torch.Tensor:
     hidden_states = hidden_states[:, :, None, :, :].expand(batch, num_key_value_heads, n_rep, slen, head_dim)
     return hidden_states.reshape(batch, num_key_value_heads * n_rep, slen, head_dim)
 
-
+#用于正常跑模型做推理的注意力 forward  ，比较正常的forward 函数
 def forward_eval(
         self,
         hidden_states: torch.Tensor,
@@ -154,7 +154,7 @@ def forward_eval(
             
         _, _, k_len, _ = key_states.shape
         _, _, q_len, _ = query_states.shape
-        decoding = (q_len != k_len and q_len == 1)
+        decoding = (q_len != k_len and q_len == 1)#区分了 decode 和 prefill 阶段
         if not decoding:
             key_states = repeat_kv(key_states, self.num_key_value_groups).to("cuda")
             value_states = repeat_kv(value_states, self.num_key_value_groups).to("cuda")
@@ -171,6 +171,8 @@ def forward_eval(
             if self.fastprefillconfig.metric == "flex":
                 attn_output = Flexprefill_prefill(query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2)).transpose(1, 2)
             elif self.fastprefillconfig.metric == "xattn":
+                layer_id = int(getattr(self, "layer_idx", -1))
+                modelName="Llama"
                 if isinstance(self.fastprefillconfig.threshold, torch.Tensor):
                     attn_output = Xattention_prefill(query_states, key_states, value_states, stride, norm=1, threshold=self.fastprefillconfig.threshold[self.layer_idx], use_triton=True)
                 else:
@@ -250,7 +252,7 @@ class FastPrefillConfig(dict):
         self.print_detail = print_detail
         self.metric = metric
         self.stride = stride
-        if threshold is not None:
+        if threshold is not None:      #这里的threshold是 forward 中的（默认值），并不是最终使用的
             self.threshold = torch.ones((32,32)).to("cuda")*threshold
         else:
             if stride == 16:
@@ -291,6 +293,7 @@ def load_model(fastprefillconfig=FastPrefillConfig(),name_or_path=""):
     )
     return model, tokenizer
 
+#跑模型，会把某层的 Q、K 存下来
 def forward_to_save(
         self,
         hidden_states: torch.Tensor,
@@ -385,6 +388,8 @@ def forward_to_save(
             if self.fastprefillconfig.metric == "flex":
                 attn_output = Flexprefill_prefill(query_states.transpose(1, 2), key_states.transpose(1, 2), value_states.transpose(1, 2)).transpose(1, 2)
             elif self.fastprefillconfig.metric == "xattn":
+                layer_id = int(getattr(self, "layer_idx", -1))
+                modelName="Llama"
                 if isinstance(self.fastprefillconfig.threshold, torch.Tensor):
                     attn_output = Xattention_prefill(query_states, key_states, value_states, stride, norm=1, threshold=self.fastprefillconfig.threshold[self.layer_idx], use_triton=True)
                 else:

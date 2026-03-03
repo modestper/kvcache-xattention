@@ -20,7 +20,7 @@
 # Root Directories
 GPUS="1" # GPU size for tensor_parallel.
 ROOT_DIR="benchmark_root" # the path that stores generated task samples and model predictions.
-MODEL_DIR="" # the path that contains individual model folders from Huggingface.
+MODEL_DIR="/DATA/models" # the path that contains individual model folders from Huggingface.
 ENGINE_DIR="." # the path that contains individual engine folders from TensorRT-LLM.
 BATCH_SIZE=1  # increase to improve GPU utilization
 
@@ -34,6 +34,8 @@ if [ -z "${MODEL_PATH}" ]; then
     echo "Model: ${MODEL_NAME} is not supported"
     exit 1
 fi
+
+echo "TOKENIZER_TYPE: ${TOKENIZER_TYPE}"
 
 
 export OPENAI_API_KEY=${OPENAI_API_KEY}
@@ -136,6 +138,7 @@ for MAX_SEQ_LENGTH in "${SEQ_LENGTHS[@]}"; do
             --num_samples ${NUM_SAMPLES} \
             ${REMOVE_NEWLINE_TAB}
         
+        echo "STOP_WORDS: ${STOP_WORDS}"
         start_time=$(date +%s)
         python pred/call_api.py \
             --data_dir ${DATA_DIR} \

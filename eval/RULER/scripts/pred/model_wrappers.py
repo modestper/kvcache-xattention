@@ -31,6 +31,9 @@ class HuggingFaceModel:
         if "Llama-3.1-8B-Instruct" in name_or_path:
             self.pipeline = None
             self.model,_ = load_model(fastprefillconfig,name_or_path = name_or_path)
+        elif "Qwen" in name_or_path:
+            self.pipeline = None
+            self.model,_ = load_model(fastprefillconfig,name_or_path = name_or_path)
         else:
             try:
                 self.pipeline = pipeline(
@@ -66,7 +69,7 @@ class HuggingFaceModel:
             generated_ids = self.model.generate(
                 **inputs,
                 **self.generation_kwargs
-            )
+            )   #只解码出input后面的部分，不考虑前面的
             generated_texts = self.tokenizer.batch_decode(generated_ids[:,inputs["input_ids"].shape[1]:], skip_special_tokens=True)
         else:
             output = self.pipeline(text_inputs=prompts, **self.generation_kwargs, )

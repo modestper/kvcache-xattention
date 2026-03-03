@@ -1,12 +1,14 @@
-conda install -c nvidia cuda-nvcc
-pip install -force_reinstall -r requirements.txt 
-pip install flash-attn==2.6.0.post1 --no-build-isolation
+# conda install -c nvidia cuda-nvcc
+# #pip install -force-reinstall -r requirements.txt 
+# pip install -force-reinstall -r requirements.txt 
 
-pip install git+https://github.com/HazyResearch/flash-attention.git#subdirectory=csrc/rotary
-pip install causal-conv1d==1.4.0
-pip install mamba-ssm==2.2.2 
+# pip install flash-attn==2.6.0.post1 --no-build-isolation
 
-python3 -c "import nltk; nltk.download('punkt')"
+# pip install git+https://github.com/HazyResearch/flash-attention.git#subdirectory=csrc/rotary
+# pip install causal-conv1d==1.4.0
+# pip install mamba-ssm==2.2.2 
+
+# python3 -c "import nltk; nltk.download('punkt')"
 
 
 # prepare data

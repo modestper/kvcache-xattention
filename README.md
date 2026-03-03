@@ -122,12 +122,6 @@ You can reproduce the Xattention and baselines results from the paper with a sim
 bash scripts/run_vllms.sh
 ```
 
-### Hunyuan Video
-For testing on HunyuanVideo, we used a threshold of 0.9 or 0.95 and a stride of 8. Reproduce the results by adjusting the parameters and running `scripts/run_hunyuan.sh`.
-```bash
-bash scripts/run_hunyuan.sh
-```
-
 ## Efficiency
 Figure below illustrates the prefill speedup of XAttention across token sequence lengths ranging from 8k to 256k. The attention breakdown over time indicates that the Xattention method effectively accelerates the pattern selection process.
 

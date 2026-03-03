@@ -232,6 +232,7 @@ def get_pred(
         input = tokenizer(prompt, truncation=False, return_tensors="pt").to("cuda")
         pbar.set_description(f"Generating for {idx}, len = {input.input_ids.shape[-1]}")
         with torch.no_grad():
+            #第一次是在 prefill 阶段操作，得到总的 kvcache  past_key_values（总的 kv 缓存）
             output = model(
                 input_ids=input.input_ids,
                 past_key_values=None,
@@ -239,12 +240,14 @@ def get_pred(
                 num_logits_to_keep=1,
             )
             past_key_values = output.past_key_values
+            #得到预测出的新token  pred_token_idx    作为下次的输入
+            #这里的token by token输入就是标准的 longbench 模板，可以减少不必要的重复计算，提高计算效率。
             pred_token_idx = output.logits[:, -1, :].argmax(dim=-1).unsqueeze(1)
             generated_content = [pred_token_idx.item()]
             for _ in range(max_gen - 1):
                 outputs = model(
-                    input_ids=pred_token_idx,
-                    past_key_values=past_key_values,
+                    input_ids=pred_token_idx,    #只输入一个token
+                    past_key_values=past_key_values,#输入整体的kv缓存
                     use_cache=True,
                     num_logits_to_keep=1,
                 )

@@ -1,6 +1,6 @@
-nemo-toolkit[all]
+nemo_toolkit[all]
 tritonclient[all]
-transformer_engine[pytorch]
+# transformer_engine[pytorch]
 flask
 flask_restful
 html2text

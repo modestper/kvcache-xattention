@@ -1,4 +1,4 @@
-models="Meta-Llama-3.1-8B-Instruct"
+models="Llama-3.1-8B-Instruct"
 # Xattention
 methods="xattn"
 # Baselines

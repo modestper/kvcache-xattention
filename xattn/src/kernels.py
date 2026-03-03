@@ -2,8 +2,8 @@ import torch, math
 import triton
 import triton.language as tl
 
-@triton.jit
-def softmax_fuse_block_sum_kernel_causal(
+@triton.jit       #做softmax和按block聚合求和（block-sum）   
+def softmax_fuse_block_sum_kernel_causal(    #直接输出每个query block对每个key block的总注意力质量
     In,
     Out,
     scale,
@@ -293,8 +293,10 @@ def flat_group_gemm(query_states, key_states, chunk_start, chunk_end):
     kv_len = key_states.shape[2]
 
     output = torch.empty((batch_size, num_heads, q_len, kv_len), dtype=query_states.dtype, device=query_states.device)
-    BLOCK_M = 128
-    BLOCK_N = 128
+    # BLOCK_M = 128
+    # BLOCK_N = 128
+    BLOCK_M = 64
+    BLOCK_N = 64
     BLOCK_K = 64
 
     grid = (q_len // BLOCK_M, kv_len // BLOCK_N, batch_size * num_heads)
@@ -331,8 +333,10 @@ def flat_group_gemm_fuse_reshape(query_states, key_states, stride, chunk_start, 
     assert (key_states.shape[3] == head_dim)
 
     output = torch.empty((batch_size, num_heads, q_len // stride, kv_len // stride), dtype=query_states.dtype, device=query_states.device)
-    BLOCK_M = 128
-    BLOCK_N = 128
+    # BLOCK_M = 128
+    # BLOCK_N = 128
+    BLOCK_M = 64
+    BLOCK_N = 64
     assert (q_len % (stride * BLOCK_M) == 0)
     assert (kv_len % (stride * BLOCK_N) == 0)
 

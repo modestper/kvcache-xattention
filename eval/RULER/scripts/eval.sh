@@ -1,7 +1,6 @@
 #!/bin/bash
 # Copyright (c) 2024, NVIDIA CORPORATION.  All rights reserved.
 
-
 # Root Directories
 GPUS="8" # GPU size for tensor_parallel.
 ROOT_DIR="benchmark_root"
